@@ -64,7 +64,7 @@
             <el-input v-model.number="ruleForm.code"></el-input>
           </el-col>
           <el-col :span="8">
-            <el-button type="success">获取验证码</el-button>
+            <el-button type="success" @click="getSms">获取验证码</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -86,26 +86,26 @@ import {
   validateVCode
 } from "@/utils/validate.js";
 import { reactive, ref, isRef, onMounted } from "@vue/composition-api";
+import {GetSms} from "@/api/login.js";
 export default {
   name: "login",
-
   setup(props, context) {
     //放置数据、生命周期、自定义函数
 
-        var checkCode = (rule, value, callback) => {
+    var checkCode = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("验证码不能为空"));
       }
       setTimeout(() => {
-        if (!Number.isInteger(value)) {
+/*         if (!Number.isInteger(value)) {
           callback(new Error("请输入数字值"));
-        } else {
+        } else { */
           if (value.toString().length != 6) {
             callback(new Error("必须6位"));
           } else {
             callback();
           }
-        }
+        
       }, 1000);
     };
     var validateUsername = (rule, value, callback) => {
@@ -125,7 +125,7 @@ export default {
       if (value === "") {
         callback(new Error("请输入密码"));
       } else if (value.toString().length < 6) {
-        callback(new Error("两次输入密码不一致!"));
+        callback(new Error("两次不少于六位!"));
       } else {
         callback();
       }
@@ -159,15 +159,21 @@ export default {
       checkPass: [{ validator: validatePass2, trigger: "blur" }],
       code: [{ validator: checkCode, trigger: "blur" }]
     });
+    /**挂载完成之后 */
     onMounted(() => {
-      console.log("onMounted");
+        console.log("onMouted()");
     });
+    /**声明函数 */
+
+    /**切换方法  登录和注册*/
     const toggleMenu = data => {
       menuTab.forEach(element => {
         element.current = false;
       });
       data.current = true;
     };
+
+    /**提交表彰 */
     const submitForm = formName => {
       context.refs[formName].validate(valid => {
         if (valid) {
@@ -178,12 +184,23 @@ export default {
         }
       });
     };
+
+    /**获取验证码 */
+    const getSms=()=>{
+      let requestData = {
+          username: ruleForm.username
+        }
+        GetSms(requestData);
+    };
+
+    /**返回属性的方法 */
     return {
       menuTab,
       ruleForm,
       rules,
       toggleMenu,
-      submitForm
+      submitForm,
+      getSms
     };
   }
 };
