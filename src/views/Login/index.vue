@@ -22,8 +22,9 @@
         class="item-from"
         prop="username"
       >
-        <label>邮箱</label>
+        <label for="username">邮箱</label>
         <el-input
+          id="username"
           type="type"
           v-model="ruleForm.username"
           autocomplete="off"
@@ -33,8 +34,9 @@
         class="item-from"
         prop="password"
       >
-        <label>密码</label>
+        <label for="password">密码</label>
         <el-input
+          id="password"
           type="password"
           v-model="ruleForm.password"
           autocomplete="off"
@@ -61,19 +63,24 @@
         <label>验证码</label>
         <el-row :gutter="10">
           <el-col :span="16">
-            <el-input v-model.number="ruleForm.code"></el-input>
+            <el-input v-model.number="ruleForm.code" ></el-input>
           </el-col>
           <el-col :span="8">
-            <el-button type="success" @click="getSms">获取验证码</el-button>
+            <el-button
+              type="success"
+              @click="getSms"
+              :disabled="btnCodeStatus.disable"
+            >{{btnCodeStatus.text}}</el-button>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item class="item-from">
         <el-button
           type="danger"
+          :disabled="btnLoginStatus"
           @click="submitForm('ruleForm')"
           class="block login-btn"
-        >提交</el-button>
+        >{{menuTab[0].current?menuTab[0].txt:menuTab[1].txt}}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -86,10 +93,10 @@ import {
   validateVCode
 } from "@/utils/validate.js";
 import { reactive, ref, isRef, onMounted } from "@vue/composition-api";
-import {GetSms} from "@/api/login.js";
+import { GetSms,Register } from "@/api/login.js";
 export default {
   name: "login",
-  setup(props, context) {
+  setup(props, { refs, root }) {
     //放置数据、生命周期、自定义函数
 
     var checkCode = (rule, value, callback) => {
@@ -97,15 +104,14 @@ export default {
         return callback(new Error("验证码不能为空"));
       }
       setTimeout(() => {
-/*         if (!Number.isInteger(value)) {
+        /*         if (!Number.isInteger(value)) {
           callback(new Error("请输入数字值"));
         } else { */
-          if (value.toString().length != 6) {
-            callback(new Error("必须6位"));
-          } else {
-            callback();
-          }
-        
+        if (value.toString().length != 6) {
+          callback(new Error("必须6位"));
+        } else {
+          callback();
+        }
       }, 1000);
     };
     var validateUsername = (rule, value, callback) => {
@@ -143,8 +149,8 @@ export default {
 
     //reactive 引用类型的值
     const menuTab = reactive([
-      { txt: "登录", current: true },
-      { txt: "注册", current: false }
+      { txt: "登录", current: true,module:"login" },
+      { txt: "注册", current: false,module:"register" }
     ]);
 
     const ruleForm = reactive({
@@ -159,9 +165,16 @@ export default {
       checkPass: [{ validator: validatePass2, trigger: "blur" }],
       code: [{ validator: checkCode, trigger: "blur" }]
     });
+    /**定义获取验证码btn状态和文本 */
+    const btnCodeStatus=reactive({
+      disable:false,
+      text:'获取验证码'
+    });
+    /**定义登录按钮状态 */
+    const btnLoginStatus=ref(true);
     /**挂载完成之后 */
     onMounted(() => {
-        console.log("onMouted()");
+      console.log("onMouted()");
     });
     /**声明函数 */
 
@@ -171,13 +184,25 @@ export default {
         element.current = false;
       });
       data.current = true;
+      refs.ruleForm.resetFields();
     };
 
-    /**提交表彰 */
+    /**提交*/
     const submitForm = formName => {
-      context.refs[formName].validate(valid => {
+      refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+            let requestData={
+              username:ruleForm.username,
+              password:ruleForm.password,
+              code:ruleForm.code,
+              module:menuTab[0].current?menuTab[0].module:menuTab[1].module
+            };
+            if(!menuTab[0].current){
+               registerUser(requestData);
+            }else{
+               alert("login")
+            }
+
         } else {
           console.log("error submit!!");
           return false;
@@ -185,22 +210,93 @@ export default {
       });
     };
 
-    /**获取验证码 */
-    const getSms=()=>{
-      let requestData = {
-          username: ruleForm.username
-        }
-        GetSms(requestData);
-    };
 
-    /**返回属性的方法 */
+    /**验证码按钮倒计时 */
+    const countDown=()=>{
+      let count=60;
+      /**声明循环函数counter */
+      let counter=setInterval(()=>{
+          /**修改获取验证码btn状态和文本 禁止再次获取*/
+          btnCodeStatus.text=`剩余${--count}秒`;
+          if(count<50){
+            /**停止函数 */
+            clearInterval(counter);
+            btnCodeStatus.disable=false;
+            btnCodeStatus.text="再次获取码"
+          }         
+
+        },1000)
+    }
+
+    /****************************************************************************************************************
+     * 获取验证码 
+     * 
+     */
+    const getSms = () => {
+      if (ruleForm.username === "") {
+        root.$message({
+          message: "邮箱不能为空",
+          type: "warning"
+        });
+        return false;
+      } else if (validateEmail(ruleForm.username)) {
+        root.$message({
+          message: "请输入正确的格式！",
+          type: "warning"
+        });
+        return false;
+      }
+      /**改变验证码状态 */
+      btnCodeStatus.text='正在发送中'
+      btnCodeStatus.disable=true;
+     
+      setTimeout(()=>{ /**延迟5秒请求 */      
+      GetSms({ username: ruleForm.username,module:menuTab[0].current?menuTab[0].module:menuTab[1].module })/**请求验证 */
+        .then(response => {
+          root.$message({
+            message:response.data.message,
+            type:"success"
+          });         
+          
+          countDown();/**验证码按钮倒计时 */         
+          btnLoginStatus.value=false; /**修改获取验证码btn状态和文本 激活按钮*/
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },1000);
+
+    };
+    /**注册用户
+     * const registerUser=function(){}
+     * 
+     */
+    const registerUser=data=>{
+        Register(data)
+        .then(response=>{
+          root.$message({
+            message:response.data.message,
+            type:"success"
+          });  
+          toggleMenu(menuTab[0]);
+        })
+        .catch(error=>{
+          console.log(error);
+        });
+    } 
+
+    /**********************************************************************************************************
+     * 返回属性和方法 
+     */
     return {
       menuTab,
       ruleForm,
       rules,
       toggleMenu,
       submitForm,
-      getSms
+      getSms,
+      btnCodeStatus,
+      btnLoginStatus
     };
   }
 };
