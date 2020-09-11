@@ -93,8 +93,8 @@ import {
   validateVCode
 } from "@/utils/validate.js";
 import { reactive, ref, isRef, onMounted } from "@vue/composition-api";
-import { GetSms, Register } from "@/api/login.js";
-import sha1 from 'js-sha1'
+import { GetSms, Register, Login } from "@/api/login.js";
+import sha1 from "js-sha1";
 export default {
   name: "login",
   setup(props, { refs, root }) {
@@ -179,27 +179,26 @@ export default {
     });
     /**声明函数 */
 
-
-/************************************************promise鏈式調用實例 ************************************************************
- * 
-*/
+    /************************************************promise鏈式調用實例 ************************************************************
+     *
+     */
     const promise1 = status => {
       return new Promise((resolve, reject) => {
         if (status) {
-          console.log("成功調用promise1 返回true")
+          console.log("成功調用promise1 返回true");
           resolve(true);
-        }else{
-          reject(false)
+        } else {
+          reject(false);
         }
       });
     };
     const promise2 = status => {
       return new Promise((resolve, reject) => {
         if (status) {
-          console.log("成功調用promise2 返回true")
+          console.log("成功調用promise2 返回true");
           resolve(true);
-        }else{
-          reject(false)
+        } else {
+          reject(false);
         }
       });
     };
@@ -207,27 +206,31 @@ export default {
     const promise3 = status => {
       return new Promise((resolve, reject) => {
         if (status) {
-          console.log("成功調用promise3 返回promise3")
+          console.log("成功調用promise3 返回promise3");
           resolve("promise3");
-        }else{
-          reject(false)
+        } else {
+          reject(false);
         }
       });
     };
 
-    const promiseTest = (status) => {
-        promise1(true).then((response)=>{
-         return promise2(response)
-        }).then((response)=>{
-          return promise3(response)
-        }).then(response=>{
-          console.log(response)
-        }).catch((error)=>{
-          console.log(error)
+    const promiseTest = status => {
+      promise1(true)
+        .then(response => {
+          return promise2(response);
         })
+        .then(response => {
+          return promise3(response);
+        })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     };
 
-    /************************************************promise鏈式調用實例 ************************************************************/
+    /************************************************promise鏈式調用實例END************************************************************/
     /*****************************切换方法  登录和注册***********************************************
      *
      */
@@ -252,9 +255,11 @@ export default {
             module: menuTab[0].current ? menuTab[0].module : menuTab[1].module
           };
           if (!menuTab[0].current) {
-            registerUser(requestData);
+            userRegister(requestData);
           } else {
-            alert(sha1(ruleForm.password));
+            //userLogin(requestData);
+            //alert(sha1(ruleForm.password));
+            root.$router.push({name:"Console"},params);
           }
         } else {
           console.log("error submit!!");
@@ -327,7 +332,7 @@ export default {
      *注册用户
      * const registerUser=function(data){}
      */
-    const registerUser = data => {
+    const userRegister = data => {
       Register(data)
         .then(response => {
           root.$message({
@@ -335,6 +340,22 @@ export default {
             type: "success"
           });
           toggleMenu(menuTab[0]); //加载到登录页面
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+
+    /***********************************************************************************************************
+     * 用户登录
+     */
+    const userLogin = data => {
+      Login(data)
+        .then(response => {
+          root.$message({
+            message: response.data.message,
+            type: "success"
+          });
         })
         .catch(error => {
           console.log(error);
