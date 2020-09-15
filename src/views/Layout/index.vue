@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="layout">
         <LayoutHeader />
         <LayoutNav />
         <LayoutMain />
@@ -13,10 +13,12 @@ export default {
     name:"layout",
     components:{LayoutHeader,LayoutNav,LayoutMain},
     setup(){
-
+        
     }
 }
 </script>
 <style lang="scss" scoped>
-
+#layout{
+    background-color: rebeccapurple;
+}
 </style>

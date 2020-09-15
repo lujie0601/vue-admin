@@ -1,6 +1,11 @@
 <template>
-    <div>控制台</div>
+    <div>控制台控制台控制台控制台控
+
+        
+        制台控制台控制台控制台控制台
+        控制台控制台控制台控制台aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
 </template>
+
 <script>
 export default {
     

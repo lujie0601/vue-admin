@@ -1,33 +1,92 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../views/Login/index.vue"
-import Console from "../views/Layout/index.vue"
+import Layout from "../views/Layout"
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    redirect:"login"
+    redirect: "login",
+    hidden: true,
+    meta: {
+      name: "主页"
+    }
   },
   {
     path: "/login",
     name: "Login",
-    component: Login
+    hidden: true,
+    component: Login,
+    meta: {
+      name: "登录"
+    }
   },
   {
     path: "/console",
     name: "Console",
-    component: Console
+    component: Layout,
+    meta: { name: "控制台", icon: "el-icon-platform-eleme" },
+    children: [
+      {
+        path: "/console",
+        name: "Console",
+        meta: {
+          name: "首页",
+        },
+        component: () => import("../views/Console")
+      }
+    ]
   },
   {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+    path: "/info",
+    name: "Info",
+    component: Layout,
+    meta: { name: "信息管理", icon: "el-icon-s-tools" },
+    children: [
+      {
+        path: "/infoIndex",
+        name: "InfoIndex",
+        meta: {
+          name: "信息列表"
+        },
+        component: () => import("../views/Info")
+      },
+      {
+        path: "/infoCate",
+        name: "InfoCate",
+        meta: {
+          name: "信息分类"
+        },
+        component: () => import("../views/Info/category.vue")
+      }
+    ]
+  },
+  {
+    path: "/user",
+    name: "User",
+    component: Layout,
+    meta: { name: "用户管理", icon: "el-icon-user-solid" },
+    children: [
+      {
+        path: "/userIndex",
+        name: "UserIndex",
+        meta: {
+          name: "用户首页"
+        },
+        component: () => import("../views/User")
+      }
+    ]
   }
+  //{
+  // path: "/about",
+  // name: "About",
+  // route level code-splitting
+  // this generates a separate chunk (about.[hash].js) for this route
+  // which is lazy-loaded when the route is visited.
+  //component: () =>
+  // import(/* webpackChunkName: "about" */ "../views/About.vue")
+  // }
 ];
 
 const router = new VueRouter({

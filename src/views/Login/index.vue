@@ -259,7 +259,7 @@ export default {
           } else {
             //userLogin(requestData);
             //alert(sha1(ruleForm.password));
-            root.$router.push({name:"Console"},params);
+            root.$router.push({name:"Console"});
           }
         } else {
           console.log("error submit!!");
