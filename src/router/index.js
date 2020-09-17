@@ -21,12 +21,13 @@ const routes = [
     meta: {
       name: "登录"
     }
-  },
+  }
+  ,
   {
-    path: "/console",
-    name: "Console",
+    path: "/main",
+    name: "Main",
     component: Layout,
-    meta: { name: "控制台", icon: "el-icon-platform-eleme" },
+    meta: { name: "控制台", icon: "console" },
     children: [
       {
         path: "/console",
@@ -42,7 +43,7 @@ const routes = [
     path: "/info",
     name: "Info",
     component: Layout,
-    meta: { name: "信息管理", icon: "el-icon-s-tools" },
+    meta: { name: "信息管理", icon: "info" },
     children: [
       {
         path: "/infoIndex",
@@ -66,7 +67,7 @@ const routes = [
     path: "/user",
     name: "User",
     component: Layout,
-    meta: { name: "用户管理", icon: "el-icon-user-solid" },
+    meta: { name: "用户管理", icon: "user" },
     children: [
       {
         path: "/userIndex",
@@ -77,7 +78,8 @@ const routes = [
         component: () => import("../views/User")
       }
     ]
-  }
+  },
+
   //{
   // path: "/about",
   // name: "About",

@@ -1,6 +1,8 @@
 <template>
   <div id="main-wrap">
+    mainup
     <router-view />
+    maindown
   </div>
 </template>
 <script>

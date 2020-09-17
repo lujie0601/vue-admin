@@ -92,7 +92,7 @@ import {
   validatePass,
   validateVCode
 } from "@/utils/validate.js";
-import { reactive, ref, isRef, onMounted } from "@vue/composition-api";
+import { reactive, ref, isRef, onMounted } from "@vue/composition-api"; //vue3.0引用生命周期和属性的定义
 import { GetSms, Register, Login } from "@/api/login.js";
 import sha1 from "js-sha1";
 export default {

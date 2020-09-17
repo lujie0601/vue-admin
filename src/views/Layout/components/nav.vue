@@ -10,14 +10,18 @@
       background-color="#344a5f"
       router
     >
-      <template  v-for="(item,index) in routes">
-        <el-submenu 
+      <template v-for="(item,index) in routes">
+        <el-submenu
           v-if="!(item.hidden)"
           :key="item.id"
           :index="index+''"
         >
           <template slot="title">
-            <i :class="item.meta.icon"></i>
+            <svg-icon
+              :iconClass="item.meta.icon"
+              :className="item.meta.icon"
+            />
+
             <span slot="title">{{item.meta.name}}</span>
           </template>
 
@@ -39,7 +43,7 @@ export default {
   setup(props, { refs, root }) {
     console.log(root.$router.options.routes);
 
-    const routes = reactive(root.$router.options.routes);//打印总路由信息
+    const routes = reactive(root.$router.options.routes); //打印总路由信息
 
     const isCollapse = ref(false);
     const handleOpen = (key, keyPath) => {
